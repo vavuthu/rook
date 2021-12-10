@@ -8,6 +8,7 @@ metadata:
   labels:
     operator: rook
     storage-backend: ceph
+    {{- include "library.rook-ceph.labels" . | nindent 4 }}
 rules:
 - apiGroups:
   - ""
@@ -30,18 +31,6 @@ rules:
   - daemonsets
   - statefulsets
   - deployments
-  verbs:
-  - get
-  - list
-  - watch
-  - create
-  - update
-  - delete
-- apiGroups:
-  - monitoring.coreos.com
-  resources:
-  - servicemonitors
-  - prometheusrules
   verbs:
   - get
   - list

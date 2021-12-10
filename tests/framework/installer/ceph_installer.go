@@ -45,7 +45,7 @@ const (
 	// test with the latest octopus build
 	octopusTestImage = "quay.io/ceph/ceph:v15"
 	// test with the latest pacific build
-	pacificTestImage = "quay.io/ceph/ceph:v16.2.6"
+	pacificTestImage = "quay.io/ceph/ceph:v16"
 	// test with the current development version of Pacific
 	pacificDevelTestImage = "quay.io/ceph/daemon-base:latest-pacific-devel"
 	octopusDevelTestImage = "quay.io/ceph/daemon-base:latest-octopus-devel"
@@ -920,7 +920,7 @@ func NewCephInstaller(t func() *testing.T, clientset *kubernetes.Clientset, sett
 		k8shelper:       k8shelp,
 		helmHelper:      utils.NewHelmHelper(testHelmPath()),
 		k8sVersion:      version.String(),
-		changeHostnames: k8shelp.VersionAtLeast("v1.18.0"),
+		changeHostnames: settings.ChangeHostName,
 		T:               t,
 	}
 	flag.Parse()

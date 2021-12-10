@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 set -eEuo pipefail
+# setting locate `LC_ALL=C` because different OS do files sorting differently, 
+# so setting a common behaviour, `C` sorting order is based on the byte values,
+# Reference: https://blog.zhimingwang.org/macos-lc_collate-hunt
+LC_ALL=C
 
 # READS FROM STDIN
 # WRITES TO STDOUT
@@ -27,7 +31,9 @@ $YQ eval '
     select(.kind == "Role"),
     select(.kind == "RoleBinding")
   ' - | # select all RBAC resource Kinds
-$YQ eval 'del(.metadata.labels.chart)' - | # remove the 'chart' label that only applies to Helm-managed resources
+$YQ eval 'del(.metadata.labels."helm.sh/chart")' - | # remove the 'helm.sh/chart' label that only applies to Helm-managed resources
+$YQ eval 'del(.metadata.labels."app.kubernetes.io/managed-by")' - | # remove the 'labels.app.kubernetes.io/managed-by' label that only applies to Helm-managed resources
+$YQ eval 'del(.metadata.labels."app.kubernetes.io/created-by")' - | # remove the 'app.kubernetes.io/created-by' label that only applies to Helm-managed resources
 sed '/^$/d' | # remove empty lines caused by yq's display of header/footer comments
 sed '/^# Source: /d' | # helm adds '# Source: <file>' comments atop of each yaml doc. Strip these
 $YQ eval --split-exp '.kind + " " + .metadata.name + " "' - # split into files by <kind> <name> .yaml
