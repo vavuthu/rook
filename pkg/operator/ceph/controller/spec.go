@@ -620,6 +620,22 @@ func PodSecurityContext() *v1.SecurityContext {
 	}
 }
 
+// PrivilegedContext returns a privileged Pod security context
+func PrivilegedContext(runAsRoot bool) *v1.SecurityContext {
+	privileged := true
+	rootUser := int64(0)
+
+	sec := &v1.SecurityContext{
+		Privileged: &privileged,
+	}
+
+	if runAsRoot {
+		sec.RunAsUser = &rootUser
+	}
+
+	return sec
+}
+
 // LogCollectorContainer runs a cron job to rotate logs
 func LogCollectorContainer(daemonID, ns string, c cephv1.ClusterSpec) *v1.Container {
 	return &v1.Container{
@@ -714,7 +730,7 @@ func ConfigureExternalMetricsEndpoint(ctx *clusterd.Context, monitoringSpec ceph
 	}
 	logger.Debugf("diff between current endpoint and newly generated one: %v \n", cmp.Diff(currentEndpoints, endpoint, cmp.Comparer(func(x, y resource.Quantity) bool { return x.Cmp(y) == 0 })))
 
-	_, err = k8sutil.CreateOrUpdateEndpoint(ctx.Clientset, clusterInfo.Namespace, endpoint)
+	_, err = k8sutil.CreateOrUpdateEndpoint(clusterInfo.Context, ctx.Clientset, clusterInfo.Namespace, endpoint)
 	if err != nil {
 		return errors.Wrap(err, "failed to create or update mgr endpoint")
 	}

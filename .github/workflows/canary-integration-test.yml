@@ -59,6 +59,11 @@ jobs:
         kubectl -n rook-ceph cp deploy/examples/create-external-cluster-resources.py $toolbox:/etc/ceph
         timeout 10 sh -c "until kubectl -n rook-ceph exec $toolbox -- python3 /etc/ceph/create-external-cluster-resources.py --rbd-data-pool-name replicapool; do echo 'waiting for script to succeed' && sleep 1; done"
 
+    - name: dry run external script create-external-cluster-resources.py
+      run: |
+        toolbox=$(kubectl get pod -l app=rook-ceph-tools -n rook-ceph -o jsonpath='{.items[*].metadata.name}')
+        kubectl -n rook-ceph exec $toolbox -- python3 /etc/ceph/create-external-cluster-resources.py --rbd-data-pool-name=replicapool --dry-run
+
     - name: run external script create-external-cluster-resources.py unit tests
       run: |
         kubectl -n rook-ceph exec $(kubectl get pod -l app=rook-ceph-tools -n rook-ceph -o jsonpath='{.items[0].metadata.name}') -- python3 -m unittest /etc/ceph/create-external-cluster-resources.py
@@ -76,7 +81,7 @@ jobs:
         sed -i 's/<OSD-IDs>/1/' deploy/examples/osd-purge.yaml
         # the CI must force the deletion since we use replica 1 on 2 OSDs
         sed -i 's/false/true/' deploy/examples/osd-purge.yaml
-        sed -i 's|rook/ceph:master|rook/ceph:local-build|' deploy/examples/osd-purge.yaml
+        sed -i 's|rook/ceph:v1.8.1|rook/ceph:local-build|' deploy/examples/osd-purge.yaml
         kubectl -n rook-ceph create -f deploy/examples/osd-purge.yaml
         toolbox=$(kubectl get pod -l app=rook-ceph-tools -n rook-ceph -o jsonpath='{.items[*].metadata.name}')
         kubectl -n rook-ceph exec $toolbox -- ceph status

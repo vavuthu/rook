@@ -123,10 +123,16 @@ func (c *ClusterController) cleanUpJobContainer(cluster *cephv1.CephCluster, mon
 		}...)
 	}
 
+	// Run a UID 0 since ceph-volume does not support running non-root
+	// See https://tracker.ceph.com/issues/53511
+	// Also, it's hard to catch the ceph version since the cluster is being deleted so not
+	// implementing a version check and simply always run this as root
+	securityContext := controller.PrivilegedContext(true)
+
 	return v1.Container{
 		Name:            "host-cleanup",
 		Image:           c.rookImage,
-		SecurityContext: osd.PrivilegedContext(),
+		SecurityContext: securityContext,
 		VolumeMounts:    volumeMounts,
 		Env:             envVars,
 		Args:            []string{"ceph", "clean"},

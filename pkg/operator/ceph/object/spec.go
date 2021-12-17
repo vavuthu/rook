@@ -496,7 +496,7 @@ func (c *clusterConfig) reconcileExternalEndpoint(cephObjectStore *cephv1.CephOb
 		return errors.Wrapf(err, "failed to set owner reference to ceph object store endpoint %q", endpoint.Name)
 	}
 
-	_, err = k8sutil.CreateOrUpdateEndpoint(c.context.Clientset, cephObjectStore.Namespace, endpoint)
+	_, err = k8sutil.CreateOrUpdateEndpoint(c.clusterInfo.Context, c.context.Clientset, cephObjectStore.Namespace, endpoint)
 	if err != nil {
 		return errors.Wrapf(err, "failed to create or update object store %q endpoint", cephObjectStore.Name)
 	}
@@ -512,7 +512,7 @@ func (c *clusterConfig) reconcileService(cephObjectStore *cephv1.CephObjectStore
 		return "", errors.Wrapf(err, "failed to set owner reference to ceph object store service %q", service.Name)
 	}
 
-	svc, err := k8sutil.CreateOrUpdateService(c.context.Clientset, cephObjectStore.Namespace, service)
+	svc, err := k8sutil.CreateOrUpdateService(c.clusterInfo.Context, c.context.Clientset, cephObjectStore.Namespace, service)
 	if err != nil {
 		return "", errors.Wrapf(err, "failed to create or update object store %q service", cephObjectStore.Name)
 	}

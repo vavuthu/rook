@@ -565,7 +565,7 @@ type CrashCollectorSpec struct {
 type CephBlockPool struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata"`
-	Spec              PoolSpec `json:"spec"`
+	Spec              NamedBlockPoolSpec `json:"spec"`
 	// +kubebuilder:pruning:PreserveUnknownFields
 	Status *CephBlockPoolStatus `json:"status,omitempty"`
 }
@@ -637,6 +637,26 @@ type PoolSpec struct {
 	// +optional
 	// +nullable
 	Quotas QuotaSpec `json:"quotas,omitempty"`
+}
+
+// NamedBlockPoolSpec allows a block pool to be created with a non-default name.
+// This is more specific than the NamedPoolSpec so we get schema validation on the
+// allowed pool names that can be specified.
+type NamedBlockPoolSpec struct {
+	// The desired name of the pool if different from the CephBlockPool CR name.
+	// +kubebuilder:validation:Enum=device_health_metrics;.nfs
+	// +optional
+	Name string `json:"name,omitempty"`
+	// The core pool configuration
+	PoolSpec `json:",inline"`
+}
+
+// NamedPoolSpec represents the named ceph pool spec
+type NamedPoolSpec struct {
+	// Name of the pool
+	Name string `json:"name,omitempty"`
+	// PoolSpec represents the spec of ceph pool
+	PoolSpec `json:",inline"`
 }
 
 // MirrorHealthCheckSpec represents the health specification of a Ceph Storage Pool mirror
@@ -964,9 +984,9 @@ type FilesystemSpec struct {
 	// +nullable
 	MetadataPool PoolSpec `json:"metadataPool"`
 
-	// The data pool settings
+	// The data pool settings, with optional predefined pool name.
 	// +nullable
-	DataPools []PoolSpec `json:"dataPools"`
+	DataPools []NamedPoolSpec `json:"dataPools"`
 
 	// Preserve pools on filesystem deletion
 	// +optional
