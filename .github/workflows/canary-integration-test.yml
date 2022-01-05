@@ -71,6 +71,11 @@ jobs:
         # copy the test file
         # execute the test file
 
+    - name: wait for the subvolumegroup to be created
+      run: |
+        toolbox=$(kubectl get pod -l app=rook-ceph-tools -n rook-ceph -o jsonpath='{.items[*].metadata.name}')
+        timeout 60 sh -c "until kubectl -n rook-ceph exec $toolbox -- ceph fs subvolumegroup ls myfs|jq .[0].name|grep -q "group-a"; do sleep 1 && echo 'waiting for the subvolumegroup to be created'; done"
+
     - name: check-ownerreferences
       run: tests/scripts/github-action-helper.sh check_ownerreferences
 
@@ -293,6 +298,11 @@ jobs:
         tests/scripts/github-action-helper.sh wait_for_ceph_to_be_ready osd 2
         kubectl -n rook-ceph get secrets
         sudo lsblk
+
+    - name: test osd deployment removal and re-hydration
+      run: |
+        kubectl -n rook-ceph delete deploy/rook-ceph-osd-0
+        tests/scripts/github-action-helper.sh wait_for_ceph_to_be_ready osd 2
 
     - name: collect common logs
       if: always()
@@ -622,7 +632,7 @@ jobs:
 
     - name: wait for ceph cluster 1 to be ready
       run: |
-        mkdir test
+        mkdir -p test
         tests/scripts/validate_cluster.sh osd 1
         kubectl -n rook-ceph get pods
 
