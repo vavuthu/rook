@@ -282,11 +282,11 @@ csi:
   #provisioner:
     #image: k8s.gcr.io/sig-storage/csi-provisioner:v3.1.0
   #snapshotter:
-    #image: k8s.gcr.io/sig-storage/csi-snapshotter:v4.2.0
+    #image: k8s.gcr.io/sig-storage/csi-snapshotter:v5.0.1
   #attacher:
     #image: k8s.gcr.io/sig-storage/csi-attacher:v3.4.0
   #resizer:
-    #image: k8s.gcr.io/sig-storage/csi-resizer:v1.3.0
+    #image: k8s.gcr.io/sig-storage/csi-resizer:v1.4.0
   # Labels to add to the CSI CephFS Deployments and DaemonSets Pods.
   #cephfsPodLabels: "key1=value1,key2=value2"
   # Labels to add to the CSI RBD Deployments and DaemonSets Pods.
@@ -296,7 +296,7 @@ csi:
   # See https://rook.io/docs/rook/latest/ceph-csi-drivers.html#rbd-mirroring
   volumeReplication:
     enabled: false
-    #image: "quay.io/csiaddons/volumereplication-operator:v0.1.0"
+    #image: "quay.io/csiaddons/volumereplication-operator:v0.3.0"
   # Enable the CSIAddons sidecar.
   csiAddons:
     enabled: false
