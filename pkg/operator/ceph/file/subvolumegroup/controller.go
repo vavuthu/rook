@@ -248,7 +248,8 @@ func (r *ReconcileCephFilesystemSubVolumeGroup) reconcile(request reconcile.Requ
 	// If the mon endpoints change, the mon health check go routine will take care of updating the
 	// config map, so no special care is needed in this controller
 	csiClusterConfigEntry := csi.CsiClusterConfigEntry{
-		Monitors: csi.MonEndpoints(r.clusterInfo.Monitors),
+		Namespace: r.clusterInfo.Namespace,
+		Monitors:  csi.MonEndpoints(r.clusterInfo.Monitors),
 		CephFS: &csi.CsiCephFSSpec{
 			SubvolumeGroup: cephFilesystemSubVolumeGroup.Name,
 		},
